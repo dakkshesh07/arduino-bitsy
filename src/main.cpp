@@ -62,9 +62,6 @@ const float turn_y1 = y_start + y_step / 2;
 const float turn_x0 = turn_x1 - temp_b * cos(temp_alpha);
 const float turn_y0 = temp_b * sin(temp_alpha) - turn_y1 - length_side;
 
-// pin-A0
-#define IR_Detect_IO 14
-
 /* ---------------------------------------------------------------------------*/
 
 /*
@@ -75,8 +72,6 @@ void setup()
   //start serial for debug
   Serial.begin(57600);
   Serial.println("Robot starts initialization");
-  // config IR_Detect_IO pin as input
-  pinMode(IR_Detect_IO, INPUT);
   
   // RegisHsu, remote control
   // Setup callbacks for SerialCommand commands
@@ -142,37 +137,10 @@ void servo_detach(void)
 /*
   - loop function
    ---------------------------------------------------------------------------*/
-int flag_obstacle = 0;
-int mode_left_right = 0;
 void loop()
 {
-  int tmp_turn, tmp_leg, tmp_body;
   //Regis, 2015-07-15, for Bluetooth command
   SCmd.readSerial();
-  if (!digitalRead(IR_Detect_IO) && is_stand())
-  {
-    tmp_turn = spot_turn_speed;
-    tmp_leg = leg_move_speed;
-    tmp_body = body_move_speed;
-    spot_turn_speed = leg_move_speed = body_move_speed = 20;
-    if (flag_obstacle < 3)
-    {
-      step_back(1);
-      flag_obstacle++;
-    }
-    else
-    {
-      if (mode_left_right)
-        turn_right(1);
-      else
-        turn_left(1);
-      mode_left_right = 1 - mode_left_right;
-      flag_obstacle = 0;
-    }
-    spot_turn_speed = tmp_turn;
-    leg_move_speed = tmp_leg;
-    body_move_speed = tmp_body;
-  }
 }
 
 void do_test(void)
