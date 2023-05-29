@@ -62,6 +62,9 @@ const float turn_y1 = y_start + y_step / 2;
 const float turn_x0 = turn_x1 - temp_b * cos(temp_alpha);
 const float turn_y0 = temp_b * sin(temp_alpha) - turn_y1 - length_side;
 
+/* Debug */
+#define DEBUG_BUILD 0
+
 /* ---------------------------------------------------------------------------*/
 
 /*
@@ -143,6 +146,7 @@ void loop()
   SCmd.readSerial();
 }
 
+#ifdef DEBUG_BUILD
 void do_test(void)
 {
   Serial.println("Stand");
@@ -170,6 +174,7 @@ void do_test(void)
   sit();
   delay(5000);
 }
+#endif
 
 // RegisHsu
 // w 0 1: stand
@@ -191,7 +196,9 @@ void action_cmd(void)
 {
   char *arg;
   int action_mode, n_step;
+  #ifdef DEBUG_BUILD
   Serial.println("Action:");
+  #endif
   arg = SCmd.next();
   action_mode = atoi(arg);
   arg = SCmd.next();
@@ -200,42 +207,56 @@ void action_cmd(void)
   switch (action_mode)
   {
     case W_FORWARD:
+#ifdef DEBUG_BUILD
       Serial.println("Step forward");
+#endif
       if (!is_stand())
         stand();
       step_forward(n_step);
       break;
     case W_BACKWARD:
+#ifdef DEBUG_BUILD
       Serial.println("Step back");
+#endif
       if (!is_stand())
         stand();
       step_back(n_step);
       break;
     case W_LEFT:
+#ifdef DEBUG_BUILD
       Serial.println("Turn left");
+#endif
       if (!is_stand())
         stand();
       turn_left(n_step);
       break;
     case W_RIGHT:
+#ifdef DEBUG_BUILD
       Serial.println("Turn right");
+#endif
       if (!is_stand())
         stand();
       turn_right(n_step);
       break;
     case W_STAND_SIT:
+#ifdef DEBUG_BUILD
       Serial.println("1:up,0:dn");
+#endif
       if (n_step)
         stand();
       else
         sit();
       break;
     case W_SHAKE:
+#ifdef DEBUG_BUILD
       Serial.println("Hand shake");
+#endif
       hand_shake(n_step);
       break;
     case W_WAVE:
+#ifdef DEBUG_BUILD
       Serial.println("Hand wave");
+#endif
       hand_wave(n_step);
       break;
     default:
