@@ -40,7 +40,7 @@ volatile float site_now[4][3];    //real-time coordinates of the end of each leg
 volatile float site_expect[4][3]; //expected coordinates of the end of each leg
 float temp_speed[4][3];   //each axis' speed, needs to be recalculated before each movement
 float move_speed;     //movement speed
-static const float speed_multiple = 1; //movement speed multiple
+static const float speed_multiple = 1.4; //movement speed multiple
 static const float spot_turn_speed = 4;
 static const float leg_move_speed = 8;
 static const float body_move_speed = 3;
