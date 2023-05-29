@@ -824,30 +824,20 @@ void cartesian_to_polar(volatile float &alpha, volatile float &beta, volatile fl
    ---------------------------------------------------------------------------*/
 void polar_to_servo(int leg, float alpha, float beta, float gamma)
 {
-  if (leg == 0)
-  {
-    alpha = 90 - alpha;
-    beta = beta;
-    gamma += 90;
-  }
-  else if (leg == 1)
-  {
-    alpha += 90;
-    beta = 180 - beta;
-    gamma = 90 - gamma;
-  }
-  else if (leg == 2)
-  {
-    alpha += 90;
-    beta = 180 - beta;
-    gamma = 90 - gamma;
-  }
-  else if (leg == 3)
-  {
-    alpha = 90 - alpha;
-    beta = beta;
-    gamma += 90;
-  }
+  switch (leg) {
+	case 0:
+	case 3:
+		alpha = 90 - alpha;
+		beta = beta;
+		gamma += 90;
+		break;
+	case 1:
+	case 2:
+		alpha += 90;
+		beta = 180 - beta;
+		gamma = 90 - gamma;
+		break;
+	}
 
   servo[leg][0].write(alpha);
   servo[leg][1].write(beta);
