@@ -764,26 +764,18 @@ void set_site(int leg, float x, float y, float z)
 }
 
 /*
-  - wait one of end points move to expect site
-  - blocking function
-   ---------------------------------------------------------------------------*/
-void wait_reach(int leg)
-{
-  while (1)
-    if (site_now[leg][0] == site_expect[leg][0])
-      if (site_now[leg][1] == site_expect[leg][1])
-        if (site_now[leg][2] == site_expect[leg][2])
-          break;
-}
-
-/*
   - wait all of end points move to expect site
   - blocking function
    ---------------------------------------------------------------------------*/
 void wait_all_reach(void)
 {
   for (int i = 0; i < 4; i++)
-    wait_reach(i);
+    while (1) {
+		if (site_now[i][0] == site_expect[i][0] &&
+			site_now[i][1] == site_expect[i][1] &&
+			site_now[i][2] == site_expect[i][2])
+			break;
+	}
 }
 
 /*
