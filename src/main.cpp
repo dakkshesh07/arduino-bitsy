@@ -73,7 +73,7 @@ static const float turn_y0 = temp_b * sin(temp_alpha) - turn_y1 - length_side;
 void setup()
 {
   //start serial for debug
-  Serial.begin(57600);
+  Serial.begin(9600);
   Serial.println("Robot starts initialization");
   
   // RegisHsu, remote control
