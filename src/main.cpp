@@ -126,17 +126,6 @@ void servo_attach(void)
   }
 }
 
-void servo_detach(void)
-{
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
-      servo[i][j].detach();
-      delay(100);
-    }
-  }
-}
 /*
   - loop function
    ---------------------------------------------------------------------------*/
