@@ -31,8 +31,8 @@ void hand_shake(int i);
 void hand_wave(int i);
 void do_test(void);
 
-void wait_all_reach(void);
-void set_site(int leg, float x, float y, float z);
+inline void wait_all_reach(void) __attribute__((always_inline));
+inline void set_site(int leg, float x, float y, float z) __attribute__((always_inline));
 
 void cartesian_to_polar(volatile float &alpha, volatile float &beta,
                         volatile float &gamma, volatile float x,
