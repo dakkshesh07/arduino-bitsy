@@ -48,8 +48,6 @@ static const float stand_seat_speed = 1;
 volatile int rest_counter;  //+1/0.02s, for automatic rest
 //functions' parameter
 static const float KEEP = 255;
-//define PI for calculation
-static const float pi = 3.1415926;
 /* Constants for turn --------------------------------------------------------*/
 //temp length
 static const float temp_a = sqrt(pow(2 * x_default + length_side, 2) + pow(y_step, 2));
@@ -675,9 +673,9 @@ void cartesian_to_polar(volatile float &alpha, volatile float &beta, volatile fl
   //calculate x-y-z degree
   gamma = (w >= 0) ? atan2(y, x) : atan2(-y, -x);
   //trans degree pi->180
-  alpha = alpha / pi * 180;
-  beta = beta / pi * 180;
-  gamma = gamma / pi * 180;
+  alpha = alpha / PI * 180;
+  beta = beta / PI * 180;
+  gamma = gamma / PI * 180;
 }
 
 /*
