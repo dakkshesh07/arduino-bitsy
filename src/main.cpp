@@ -15,16 +15,16 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include <Arduino.h> //Arduino Framework
-#include <main.h> // Function declarations
-#include <Servo.h>    //to define and control servos
-#include <FlexiTimer2.h>//to set a timer to manage all servos
+#include <Arduino.h>      //Arduino Framework
+#include <main.h>         // Function declarations
+#include <Servo.h>        //to define and control servos
+#include <FlexiTimer2.h>  //to set a timer to manage all servos
 
 /* Servos --------------------------------------------------------------------*/
 //define 12 servos for 4 legs
 Servo servo[4][3];
 //define servos' ports
-static const int servo_pin[4][3] = { {2, 3, 4}, {5, 6, 7}, {8, 9, 10}, {11, 12, 13} };
+static const int servo_pin[4][3] = { { 2, 3, 4 }, { 5, 6, 7 }, { 8, 9, 10 }, { 11, 12, 13 } };
 /* Size of the robot ---------------------------------------------------------*/
 static const float length_a = 55;
 static const float length_b = 77.5;
@@ -36,16 +36,16 @@ static const float z_default = -50, z_up = -30, z_boot = z_absolute;
 static const float x_default = 62, x_offset = 0;
 static const float y_start = 0, y_step = 40;
 /* variables for movement ----------------------------------------------------*/
-volatile float site_now[4][3];    //real-time coordinates of the end of each leg
-volatile float site_expect[4][3]; //expected coordinates of the end of each leg
-float temp_speed[4][3];   //each axis' speed, needs to be recalculated before each movement
-float move_speed;     //movement speed
-static const float speed_multiple = 1.4; //movement speed multiple
+volatile float site_now[4][3];            //real-time coordinates of the end of each leg
+volatile float site_expect[4][3];         //expected coordinates of the end of each leg
+float temp_speed[4][3];                   //each axis' speed, needs to be recalculated before each movement
+float move_speed;                         //movement speed
+static const float speed_multiple = 1.4;  //movement speed multiple
 static const float spot_turn_speed = 4;
 static const float leg_move_speed = 8;
 static const float body_move_speed = 3;
 static const float stand_seat_speed = 1;
-volatile int rest_counter;      //+1/0.02s, for automatic rest
+volatile int rest_counter;  //+1/0.02s, for automatic rest
 //functions' parameter
 static const float KEEP = 255;
 //define PI for calculation
@@ -70,8 +70,7 @@ static const float turn_y0 = temp_b * sin(temp_alpha) - turn_y1 - length_side;
 /*
   - setup function
    ---------------------------------------------------------------------------*/
-void setup()
-{
+void setup() {
   //start serial for debug
   Serial.begin(9600);
   Serial.println("Robot starts initialization");
@@ -81,10 +80,8 @@ void setup()
   set_site(1, x_default - x_offset, y_start + y_step, z_boot);
   set_site(2, x_default + x_offset, y_start, z_boot);
   set_site(3, x_default + x_offset, y_start, z_boot);
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 3; j++) {
       site_now[i][j] = site_expect[i][j];
     }
   }
@@ -99,12 +96,9 @@ void setup()
 }
 
 
-void servo_attach(void)
-{
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
+void servo_attach(void) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 3; j++) {
       servo[i][j].attach(servo_pin[i][j]);
       delay(100);
     }
@@ -114,11 +108,10 @@ void servo_attach(void)
 /*
   - loop function
    ---------------------------------------------------------------------------*/
-void loop()
-{
+void loop() {
 
   if (!Serial.available())
-	return;
+    return;
 
   int mode = Serial.read();
 
@@ -131,45 +124,43 @@ void loop()
   // 5 : hand shake 3 times
   // 6 : hand wave 3 times
 
-  switch (mode)
-  {
-  case '0':
-	stand();
-	break;
-  case '1':
-	if (!is_stand())
-	  stand();
-	step_forward(1);
-	break;
-  case '2':
-	if (!is_stand())
-	  stand();
-	step_back(1);
-	break;
-  case '3':
-	if (!is_stand())
-	  stand();
-	turn_left(1);
-	break;
-  case '4':
-	if (!is_stand())
-	  stand();
-	turn_right(1);
-	break;
-  case '5':
-	hand_shake(3);
-	break;
-  case '6':
-	hand_wave(3);
-	break;
-  case '7':
-	sit();
+  switch (mode) {
+    case '0':
+      stand();
+      break;
+    case '1':
+      if (!is_stand())
+        stand();
+      step_forward(1);
+      break;
+    case '2':
+      if (!is_stand())
+        stand();
+      step_back(1);
+      break;
+    case '3':
+      if (!is_stand())
+        stand();
+      turn_left(1);
+      break;
+    case '4':
+      if (!is_stand())
+        stand();
+      turn_right(1);
+      break;
+    case '5':
+      hand_shake(3);
+      break;
+    case '6':
+      hand_wave(3);
+      break;
+    case '7':
+      sit();
   }
 }
 
 #ifdef DEBUG_BUILD
-void do_test(void)
-{
+void do_test(void) {
   Serial.println("Stand");
   stand();
   delay(2000);
@@ -200,8 +191,7 @@ void do_test(void)
 /*
   - is_stand
    ---------------------------------------------------------------------------*/
-bool is_stand(void)
-{
+bool is_stand(void) {
   if (site_now[0][2] == z_default)
     return true;
   else
@@ -212,11 +202,9 @@ bool is_stand(void)
   - sit
   - blocking function
    ---------------------------------------------------------------------------*/
-void sit(void)
-{
+void sit(void) {
   move_speed = stand_seat_speed;
-  for (int leg = 0; leg < 4; leg++)
-  {
+  for (int leg = 0; leg < 4; leg++) {
     set_site(leg, KEEP, KEEP, z_boot);
   }
   wait_all_reach();
@@ -226,11 +214,9 @@ void sit(void)
   - stand
   - blocking function
    ---------------------------------------------------------------------------*/
-void stand(void)
-{
+void stand(void) {
   move_speed = stand_seat_speed;
-  for (int leg = 0; leg < 4; leg++)
-  {
+  for (int leg = 0; leg < 4; leg++) {
     set_site(leg, KEEP, KEEP, z_default);
   }
   wait_all_reach();
@@ -242,13 +228,10 @@ void stand(void)
   - blocking function
   - parameter step steps wanted to turn
    ---------------------------------------------------------------------------*/
-void turn_left(unsigned int step)
-{
+void turn_left(unsigned int step) {
   move_speed = spot_turn_speed;
-  while (step-- > 0)
-  {
-    if (site_now[3][1] == y_start)
-    {
+  while (step-- > 0) {
+    if (site_now[3][1] == y_start) {
       //leg 3&1 move
       set_site(3, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -279,9 +262,7 @@ void turn_left(unsigned int step)
 
       set_site(1, x_default + x_offset, y_start, z_default);
       wait_all_reach();
-    }
-    else
-    {
+    } else {
       //leg 0&2 move
       set_site(0, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -321,13 +302,10 @@ void turn_left(unsigned int step)
   - blocking function
   - parameter step steps wanted to turn
    ---------------------------------------------------------------------------*/
-void turn_right(unsigned int step)
-{
+void turn_right(unsigned int step) {
   move_speed = spot_turn_speed;
-  while (step-- > 0)
-  {
-    if (site_now[2][1] == y_start)
-    {
+  while (step-- > 0) {
+    if (site_now[2][1] == y_start) {
       //leg 2&0 move
       set_site(2, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -358,9 +336,7 @@ void turn_right(unsigned int step)
 
       set_site(0, x_default + x_offset, y_start, z_default);
       wait_all_reach();
-    }
-    else
-    {
+    } else {
       //leg 1&3 move
       set_site(1, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -400,13 +376,10 @@ void turn_right(unsigned int step)
   - blocking function
   - parameter step steps wanted to go
    ---------------------------------------------------------------------------*/
-void step_forward(unsigned int step)
-{
+void step_forward(unsigned int step) {
   move_speed = leg_move_speed;
-  while (step-- > 0)
-  {
-    if (site_now[2][1] == y_start)
-    {
+  while (step-- > 0) {
+    if (site_now[2][1] == y_start) {
       //leg 2&1 move
       set_site(2, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -431,9 +404,7 @@ void step_forward(unsigned int step)
       wait_all_reach();
       set_site(1, x_default + x_offset, y_start, z_default);
       wait_all_reach();
-    }
-    else
-    {
+    } else {
       //leg 0&3 move
       set_site(0, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -467,13 +438,10 @@ void step_forward(unsigned int step)
   - blocking function
   - parameter step steps wanted to go
    ---------------------------------------------------------------------------*/
-void step_back(unsigned int step)
-{
+void step_back(unsigned int step) {
   move_speed = leg_move_speed;
-  while (step-- > 0)
-  {
-    if (site_now[3][1] == y_start)
-    {
+  while (step-- > 0) {
+    if (site_now[3][1] == y_start) {
       //leg 3&0 move
       set_site(3, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -498,9 +466,7 @@ void step_back(unsigned int step)
       wait_all_reach();
       set_site(0, x_default + x_offset, y_start, z_default);
       wait_all_reach();
-    }
-    else
-    {
+    } else {
       //leg 1&2 move
       set_site(1, x_default + x_offset, y_start, z_up);
       wait_all_reach();
@@ -531,8 +497,7 @@ void step_back(unsigned int step)
 
 // add by RegisHsu
 
-void body_left(int i)
-{
+void body_left(int i) {
   set_site(0, site_now[0][0] + i, KEEP, KEEP);
   set_site(1, site_now[1][0] + i, KEEP, KEEP);
   set_site(2, site_now[2][0] - i, KEEP, KEEP);
@@ -540,8 +505,7 @@ void body_left(int i)
   wait_all_reach();
 }
 
-void body_right(int i)
-{
+void body_right(int i) {
   set_site(0, site_now[0][0] - i, KEEP, KEEP);
   set_site(1, site_now[1][0] - i, KEEP, KEEP);
   set_site(2, site_now[2][0] + i, KEEP, KEEP);
@@ -549,21 +513,18 @@ void body_right(int i)
   wait_all_reach();
 }
 
-void hand_wave(int i)
-{
+void hand_wave(int i) {
   float x_tmp;
   float y_tmp;
   float z_tmp;
   move_speed = 1;
-  if (site_now[3][1] == y_start)
-  {
+  if (site_now[3][1] == y_start) {
     body_right(15);
     x_tmp = site_now[2][0];
     y_tmp = site_now[2][1];
     z_tmp = site_now[2][2];
     move_speed = body_move_speed;
-    for (int j = 0; j < i; j++)
-    {
+    for (int j = 0; j < i; j++) {
       set_site(2, turn_x1, turn_y1, 50);
       wait_all_reach();
       set_site(2, turn_x0, turn_y0, 50);
@@ -573,16 +534,13 @@ void hand_wave(int i)
     wait_all_reach();
     move_speed = 1;
     body_left(15);
-  }
-  else
-  {
+  } else {
     body_left(15);
     x_tmp = site_now[0][0];
     y_tmp = site_now[0][1];
     z_tmp = site_now[0][2];
     move_speed = body_move_speed;
-    for (int j = 0; j < i; j++)
-    {
+    for (int j = 0; j < i; j++) {
       set_site(0, turn_x1, turn_y1, 50);
       wait_all_reach();
       set_site(0, turn_x0, turn_y0, 50);
@@ -595,21 +553,18 @@ void hand_wave(int i)
   }
 }
 
-void hand_shake(int i)
-{
+void hand_shake(int i) {
   float x_tmp;
   float y_tmp;
   float z_tmp;
   move_speed = 1;
-  if (site_now[3][1] == y_start)
-  {
+  if (site_now[3][1] == y_start) {
     body_right(15);
     x_tmp = site_now[2][0];
     y_tmp = site_now[2][1];
     z_tmp = site_now[2][2];
     move_speed = body_move_speed;
-    for (int j = 0; j < i; j++)
-    {
+    for (int j = 0; j < i; j++) {
       set_site(2, x_default - 30, y_start + 2 * y_step, 55);
       wait_all_reach();
       set_site(2, x_default - 30, y_start + 2 * y_step, 10);
@@ -619,16 +574,13 @@ void hand_shake(int i)
     wait_all_reach();
     move_speed = 1;
     body_left(15);
-  }
-  else
-  {
+  } else {
     body_left(15);
     x_tmp = site_now[0][0];
     y_tmp = site_now[0][1];
     z_tmp = site_now[0][2];
     move_speed = body_move_speed;
-    for (int j = 0; j < i; j++)
-    {
+    for (int j = 0; j < i; j++) {
       set_site(0, x_default - 30, y_start + 2 * y_step, 55);
       wait_all_reach();
       set_site(0, x_default - 30, y_start + 2 * y_step, 10);
@@ -649,15 +601,12 @@ void hand_shake(int i)
   - temp_speed[4][3] should be set before set expect site,it make sure the end point
    move in a straight line,and decide move speed.
    ---------------------------------------------------------------------------*/
-void servo_service(void)
-{
+void servo_service(void) {
   sei();
   static float alpha, beta, gamma;
 
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 3; j++) {
       if (abs(site_now[i][j] - site_expect[i][j]) >= abs(temp_speed[i][j]))
         site_now[i][j] += temp_speed[i][j];
       else
@@ -676,8 +625,7 @@ void servo_service(void)
   - this founction will set temp_speed[4][3] at same time
   - non - blocking function
    ---------------------------------------------------------------------------*/
-void set_site(int leg, float x, float y, float z)
-{
+void set_site(int leg, float x, float y, float z) {
   float length_x = 0, length_y = 0, length_z = 0;
 
   if (x != KEEP)
@@ -705,23 +653,19 @@ void set_site(int leg, float x, float y, float z)
   - wait all of end points move to expect site
   - blocking function
    ---------------------------------------------------------------------------*/
-void wait_all_reach(void)
-{
+void wait_all_reach(void) {
   for (int i = 0; i < 4; i++)
     while (1) {
-		if (site_now[i][0] == site_expect[i][0] &&
-			site_now[i][1] == site_expect[i][1] &&
-			site_now[i][2] == site_expect[i][2])
-			break;
-	}
+      if (site_now[i][0] == site_expect[i][0] && site_now[i][1] == site_expect[i][1] && site_now[i][2] == site_expect[i][2])
+        break;
+    }
 }
 
 /*
   - trans site from cartesian to polar
   - mathematical model 2/2
    ---------------------------------------------------------------------------*/
-void cartesian_to_polar(volatile float &alpha, volatile float &beta, volatile float &gamma, volatile float x, volatile float y, volatile float z)
-{
+void cartesian_to_polar(volatile float &alpha, volatile float &beta, volatile float &gamma, volatile float x, volatile float y, volatile float z) {
   //calculate w-z degree
   float v, w;
   w = (x >= 0 ? 1 : -1) * (sqrt(pow(x, 2) + pow(y, 2)));
@@ -741,22 +685,21 @@ void cartesian_to_polar(volatile float &alpha, volatile float &beta, volatile fl
   - mathematical model map to fact
   - the errors saved in eeprom will be add
    ---------------------------------------------------------------------------*/
-void polar_to_servo(int leg, float alpha, float beta, float gamma)
-{
+void polar_to_servo(int leg, float alpha, float beta, float gamma) {
   switch (leg) {
-	case 0:
-	case 3:
-		alpha = 90 - alpha;
-		beta = beta;
-		gamma += 90;
-		break;
-	case 1:
-	case 2:
-		alpha += 90;
-		beta = 180 - beta;
-		gamma = 90 - gamma;
-		break;
-	}
+    case 0:
+    case 3:
+      alpha = 90 - alpha;
+      beta = beta;
+      gamma += 90;
+      break;
+    case 1:
+    case 2:
+      alpha += 90;
+      beta = 180 - beta;
+      gamma = 90 - gamma;
+      break;
+  }
 
   servo[leg][0].write(alpha);
   servo[leg][1].write(beta);
