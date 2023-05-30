@@ -16,12 +16,7 @@
 
 #pragma once
 
-/* Headers */
-#include <SerialCommand.h>
-
 /* Declarations */
-
-SerialCommand SCmd;
 
 void servo_attach(void);
 
@@ -35,7 +30,6 @@ void turn_right(unsigned int step);
 void hand_shake(int i);
 void hand_wave(int i);
 void do_test(void);
-void action_cmd(void);
 
 void wait_all_reach(void);
 void set_site(int leg, float x, float y, float z);
@@ -46,5 +40,3 @@ void cartesian_to_polar(volatile float &alpha, volatile float &beta,
 void polar_to_servo(int leg, float alpha, float beta, float gamma);
 
 void servo_service(void);
-
-void unrecognized(const char *command);

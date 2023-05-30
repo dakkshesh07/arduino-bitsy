@@ -75,21 +75,6 @@ void setup()
   //start serial for debug
   Serial.begin(9600);
   Serial.println("Robot starts initialization");
-  
-  // RegisHsu, remote control
-  // Setup callbacks for SerialCommand commands
-  // action command 0-6,
-  // w 0 1: stand
-  // w 0 0: sit
-  // w 1 x: forward x step
-  // w 2 x: back x step
-  // w 3 x: right turn x step
-  // w 4 x: left turn x step
-  // w 5 x: hand shake x times
-  // w 6 x: hand wave x times
-  SCmd.addCommand("w", action_cmd);
-
-  SCmd.setDefaultHandler(unrecognized);
 
   //initialize default parameter
   set_site(0, x_default - x_offset, y_start + y_step, z_boot);
@@ -131,8 +116,55 @@ void servo_attach(void)
    ---------------------------------------------------------------------------*/
 void loop()
 {
-  //Regis, 2015-07-15, for Bluetooth command
-  SCmd.readSerial();
+
+  if (!Serial.available())
+	return;
+
+  int mode = Serial.read();
+
+  // 0 : stand
+  // 7 : sit
+  // 1 : forward 1 step
+  // 2 : back 1 step
+  // 3 : right turn 1 step
+  // 4 : left turn 1 step
+  // 5 : hand shake 3 times
+  // 6 : hand wave 3 times
+
+  switch (mode)
+  {
+  case '0':
+	stand();
+	break;
+  case '1':
+	if (!is_stand())
+	  stand();
+	step_forward(1);
+	break;
+  case '2':
+	if (!is_stand())
+	  stand();
+	step_back(1);
+	break;
+  case '3':
+	if (!is_stand())
+	  stand();
+	turn_left(1);
+	break;
+  case '4':
+	if (!is_stand())
+	  stand();
+	turn_right(1);
+	break;
+  case '5':
+	hand_shake(3);
+	break;
+  case '6':
+	hand_wave(3);
+	break;
+  case '7':
+	sit();
+  }
 }
 
 #ifdef DEBUG_BUILD
@@ -164,100 +196,6 @@ void do_test(void)
   delay(5000);
 }
 #endif
-
-// RegisHsu
-// w 0 1: stand
-// w 0 0: sit
-// w 1 x: forward x step
-// w 2 x: back x step
-// w 3 x: right turn x step
-// w 4 x: left turn x step
-// w 5 x: hand shake x times
-// w 6 x: hand wave x times
-#define W_STAND_SIT    0
-#define W_FORWARD      1
-#define W_BACKWARD     2
-#define W_LEFT         3
-#define W_RIGHT        4
-#define W_SHAKE        5
-#define W_WAVE         6
-void action_cmd(void)
-{
-  char *arg;
-  int action_mode, n_step;
-  #ifdef DEBUG_BUILD
-  Serial.println("Action:");
-  #endif
-  arg = SCmd.next();
-  action_mode = atoi(arg);
-  arg = SCmd.next();
-  n_step = atoi(arg);
-
-  switch (action_mode)
-  {
-    case W_FORWARD:
-#ifdef DEBUG_BUILD
-      Serial.println("Step forward");
-#endif
-      if (!is_stand())
-        stand();
-      step_forward(n_step);
-      break;
-    case W_BACKWARD:
-#ifdef DEBUG_BUILD
-      Serial.println("Step back");
-#endif
-      if (!is_stand())
-        stand();
-      step_back(n_step);
-      break;
-    case W_LEFT:
-#ifdef DEBUG_BUILD
-      Serial.println("Turn left");
-#endif
-      if (!is_stand())
-        stand();
-      turn_left(n_step);
-      break;
-    case W_RIGHT:
-#ifdef DEBUG_BUILD
-      Serial.println("Turn right");
-#endif
-      if (!is_stand())
-        stand();
-      turn_right(n_step);
-      break;
-    case W_STAND_SIT:
-#ifdef DEBUG_BUILD
-      Serial.println("1:up,0:dn");
-#endif
-      if (n_step)
-        stand();
-      else
-        sit();
-      break;
-    case W_SHAKE:
-#ifdef DEBUG_BUILD
-      Serial.println("Hand shake");
-#endif
-      hand_shake(n_step);
-      break;
-    case W_WAVE:
-#ifdef DEBUG_BUILD
-      Serial.println("Hand wave");
-#endif
-      hand_wave(n_step);
-      break;
-    default:
-      Serial.println("Error");
-      break;
-  }
-}
-
-// This gets set as the default handler, and gets called when no other command matches.
-void unrecognized(const char *command) {
-  Serial.println("What?");
-}
 
 /*
   - is_stand
